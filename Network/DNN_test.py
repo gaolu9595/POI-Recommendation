@@ -3,6 +3,7 @@
 import numpy as np
 from keras.models import load_model
 from multiprocessing import Process
+
 from Network import My_class
 
 def readFile(file):
@@ -198,6 +199,9 @@ if __name__ == '__main__':
     timelist7 = [18,19,20]
     timelist8 = [21,22,23]
     # 多进程传输的参数必须是可序列化的
+    # pool进程池可以直接自动分配多进程，并得到结果
+    # pool = Pool()
+    # result = pool.map(result_for_topk)
     p1 = Process(target=result_for_topk, args=(timelist1,time_dict,time_user_dict,user_visit_already,u_dict,p_dict,userlist,poilist))
     p2 = Process(target=result_for_topk, args=(timelist2,time_dict,time_user_dict,user_visit_already,u_dict,p_dict,userlist,poilist))
     p3 = Process(target=result_for_topk, args=(timelist3,time_dict,time_user_dict,user_visit_already,u_dict,p_dict,userlist,poilist))
