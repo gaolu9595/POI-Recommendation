@@ -44,9 +44,13 @@ def loadTuneData(file):
 #         x_test.append(test[:,i])
 #     return array(x_test)
 
+# 自定义带正则项的损失函数
+# def loss_func_create():
+
+
 if __name__ == '__main__':
     print("=============================BuildModel===============================")
-    epochs = 50     # 迭代次数【感觉迭代次数尽可能多点吧，但过多可能就过拟合了？】
+    epochs = 20     # 迭代次数【感觉迭代次数尽可能多点吧，但过多可能就过拟合了？】
     batch_size = 40      # 批次样本大小# 创建DNN模型
     # sigmoid对应binary_crossentropy二分类
     # softmax对应categorical_crossentropy多分类
@@ -75,6 +79,7 @@ if __name__ == '__main__':
     # 将模型用图画出来,Graphviz和pydot-ng是可视化工具
     # plot_model(model,to_file="dnn_model.png")
     # compile编译网络模型：指定损失函数、优化算法和评价标准等       # RecNet中使用的是Adam优化器，默认参数遵循Adam原论文中提供的值
+    # loss_function = loss_func_create()
     model.compile(loss="binary_crossentropy",optimizer="adam",metrics=["accuracy"])
 
     print("=============================StartReadingData===============================")
@@ -85,7 +90,8 @@ if __name__ == '__main__':
     print("=============================StartTraining=====================================")
     early_stop = callbacks.EarlyStopping(monitor="acc", min_delta=0, patience=10, mode="auto", verbose=1)
     model.fit(x_train, y_train, batch_size=batch_size, epochs=epochs, verbose=1, callbacks=[early_stop])
-    model.save('dnn_trained_20dim_4km.h5')
+    model.save('dnn_trained_20dim_4km_ver1.h5')
+    print(model.get_weights())
     print("=============================StartTuning=====================================")
     score = model.evaluate(x_tune, y_tune, batch_size=100, verbose=1)
     print(model.metrics_names)

@@ -49,8 +49,10 @@ def calcRecall(userlist, hit_count, file_user_poinum):
     return float(recall/user_num)
 
 if __name__ == '__main__':
-    dimlist = [20,40,60,80,100,120]
+    # dimlist = [20,40,60,80,100,120]
     timelist = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]
+    # 测试
+    dimlist = [20]
     k = 5
     precision_each_dim = {}
     recall_each_dim = {}
@@ -58,12 +60,15 @@ if __name__ == '__main__':
         precision = {}
         recall = {}
         for time in timelist:
+            print("============Time {0}=============".format(time))
             file_groundtruth = open("../data_5months/test/groundtruth/{0}positive.txt".format(time),"r",encoding="utf-8")
             file_user_poinum = open("../data_5months/test/groundtruth/{0}positive_usernum.txt".format(time),"r",encoding="utf-8")
-            file_recommendation = open("../data_5months/test/{0}result_{1}time.txt".format(dim,time),"r",encoding="utf-8")
+            file_recommendation = open("../data_5months/test/recommendation/{0}result_{1}time.txt".format(dim,time),"r",encoding="utf-8")
             # 计算命中数目
-            userlist, hit_count = calcHitNum(file_groundtruth,file_recommendation,k)
+            print("Calc Hit Count……")
+            userlist, hit_count = calcHitNum(file_groundtruth,file_recommendation)
             # 计算该时间内所有用户的总准确率和总召回率
+            print("Calc Precision and Recall……")
             precision[time] = calcPrecision(userlist, hit_count, k)
             recall[time] = calcRecall(userlist, hit_count, file_user_poinum)
 
@@ -75,3 +80,6 @@ if __name__ == '__main__':
         # 计算该维度内所有时间的总准确率和总召回率
         precision_each_dim[dim] /= 24
         recall_each_dim[dim] /= 24
+
+        print(precision_each_dim[dim])
+        print(recall_each_dim[dim])

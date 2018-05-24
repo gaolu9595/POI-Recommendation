@@ -3,8 +3,8 @@
 import numpy as np
 from keras.models import load_model
 from multiprocessing import Process
-
-from Network import My_class
+# import pickle
+# from Network import My_class
 
 def readFile(file):
     time_user_dict = {}
