@@ -41,8 +41,8 @@ def calcRecall(userlist, hit_count, file_user_poinum):
     recall = 0
     for line in file_user_poinum:
         info = line.split(":")
-        user = info[0]
-        poinum = info[1]
+        user = int(info[0])
+        poinum = int(info[1])
         user_poinum[user] = poinum
     for user in userlist:
         recall += float(hit_count[user]/user_poinum[user])
@@ -59,6 +59,8 @@ if __name__ == '__main__':
     for dim in dimlist:
         precision = {}
         recall = {}
+        precision_each_dim[dim] = 0
+        recall_each_dim[dim] = 0
         for time in timelist:
             print("============Time {0}=============".format(time))
             file_groundtruth = open("../data_5months/test/groundtruth/{0}positive.txt".format(time),"r",encoding="utf-8")

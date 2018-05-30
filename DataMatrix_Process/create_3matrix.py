@@ -160,15 +160,19 @@ def create_covisiting_matrix(poilist, data):
             if matrix[row][0] == matrix[0][col]:
                 matrix[row][col] = 0  # 对角线元素为0
             else:
-                count = len(set(appeardict[matrix[row][0]])&set(appeardict[matrix[0][col]]))
+                matrix[row][col] = len(set(appeardict[matrix[row][0]])&set(appeardict[matrix[0][col]]))
                 # count = 0
                 # for co_record in data:
                 #     if matrix[row][0] in co_record and matrix[0][col] in co_record:
                 #         count += 1
-                matrix[row][col] = count
-    print("====poi共现矩阵====")
-    for row in range(len(matrix)):
-        print(matrix[row][:])
+        # 对每一行数据进行数据的标准化，使其值在[0,1]之间
+        total_count = np.sum(matrix[row][1:])
+        if total_count != 0:
+            for col in range(1, len(matrix)):
+                matrix[row][col] = matrix[row][col]/float(total_count)
+    # print("====poi共现矩阵====")
+    # for row in range(len(matrix)):
+    #     print(matrix[row][:])
     return matrix
 
 # 构建poi被访问时间相似矩阵
@@ -183,17 +187,6 @@ def create_visitedtime_matrix(poilist, data):
     print("初始化开始！")
     row_num = len(poilist) + 1
     col_num = 25
-    # 初始化矩阵，并将poi集合赋值给首列，将时间集合赋值给首行
-    # matrix = [["" for j in range(col_num)] for i in range(row_num)]
-    # matrix = []
-    # for i in range(row_num):
-    #     list = []
-    #     for j in range(col_num):
-    #         list.append("")
-    #         print("Done!{0}/{1}".format(j, i))
-    #     matrix.append(list)
-    #     print("Done!{0}".format(i))
-    # print("初始化完成!")
     matrix = np.zeros((row_num, col_num),dtype=np.int32)
 
     matrix[0][1:] = np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23])
@@ -209,22 +202,20 @@ def create_visitedtime_matrix(poilist, data):
         for col in range(1, col_num):
             print("time位置[{0},{1}]".format(row, col))
             # 使用标准库中的Collections，得到列表中每个元素出现的次数统计
-            # Counter其实是deict的一个子类，是一个简单的计数器
+            # Counter其实是dict的一个子类，是一个简单的计数器
             d = collections.Counter(data[col-1])
             if matrix[row][0] in d.keys():
                 matrix[row][col] = d[matrix[row][0]]
             else:
                 matrix[row][col] = 0
-            # count = 0
-            # 若poi在某一时间点被访问过，计算其访问总数；否则赋0
-            # if matrix[row][0] in data[col - 1]:
-            #     for poi in data[col - 1]:
-            #         if poi == matrix[row][0]:
-            #             count += 1
-            # matrix[row][col] = count
-    print("====poi被访问时间矩阵====")
-    for row in range(len(matrix)):
-        print(matrix[row][:])
+        # 对每行数据进行标准化，即一个poi在24小时内的被访问情况
+        total_count = np.sum(matrix[row][1:])
+        if total_count != 0:
+            for col in range(1, col_num):
+                matrix[row][col] = matrix[row][col]/float(total_count)
+    # print("====poi被访问时间矩阵====")
+    # for row in range(len(matrix)):
+    #     print(matrix[row][:])
     return matrix
 
 # 构建poi的地理位置相似矩阵
@@ -272,13 +263,19 @@ def create_poi_geosim_matrix(poilist, data):
                 print(distance)
                 if distance < 0:
                     distance = 0 - distance
-                if distance <= 4:
-                    matrix[row][col] = 1
-                else:
-                    matrix[row][col] = 0
-    print("====poi地理矩阵====")
-    for row in range(len(matrix)):
-        print(matrix[row][:])
+                matrix[row][col] = float(1/distance)
+        # 对数据进行行标准化处理
+        total_count = np.sum(matrix[row][1:])
+        if total_count != 0:
+            for col in range(1, len(matrix)):
+                matrix[row][col] = matrix[row][col]/float(total_count)
+                # if distance <= 4:
+                #     matrix[row][col] = 1
+                # else:
+                #     matrix[row][col] = 0
+    # print("====poi地理矩阵====")
+    # for row in range(len(matrix)):
+    #     print(matrix[row][:])
     return matrix
 
 def writeInfo(dict, file):
@@ -290,54 +287,32 @@ def writeInfo(dict, file):
 
 
 #从训练集中构建co_visit和visit_time矩阵,geo_sim矩阵不需要重新构建【因为与是否是训练集无关】
-file = "../gowalla/train.txt"
+file = "../data_5months/g_train_set.txt"
 #从总geo列表得到将要构建的两个矩阵的维数
-file_total_geo = "../data/g_valid_total_poi_geo.txt"
+file_total_geo = "../data_5months/valid_total/g_valid_total_poi_geo.txt"
 
 #以下都是要生成的文件
-file_user_poi_dict = "../data/train/g_train_user_visit.txt"
-file_time_poi_dict = "../data/train/g_train_visit_time.txt"
-file_geo_poi_dict = "../data/train/g_train_poi_geo.txt"
+file_user_poi_dict = "../data_5months/train/g_train_user_visit.txt"
+file_time_poi_dict = "../data_5months/train/g_train_visit_time.txt"
+file_geo_poi_dict = "../data_5months/train/g_train_poi_geo.txt"
 
-file_co_visit = "../data/train/g_train_co_visit_matrix.txt"
-file_visit_time = "../data/train/g_train_time_sim_matrix.txt"
-file_poi_geo_sim = "../data/g_valid_total_poi_sim_matrix.txt"
+file_co_visit = "../data_5months/train/g_train_co_visit_matrix.txt"
+file_visit_time = "../data_5months/train/g_train_time_sim_matrix.txt"
+file_poi_geo_sim = "../data_5months/valid_total/g_valid_total_poi_sim_matrix.txt"
 
 if __name__ == '__main__':
     # 获取所有合格的poilist（15524）
     poilist, total_poi_geo_dict = create_key(file_total_geo)
     # 获取签到记录的基本信息
-    user_poi_dict, time_poi_dict, poi_geo_dict = readFile(file) #,poilist
+    user_poi_dict, time_poi_dict, poi_geo_dict = readFile(file)        #,poilist
 
-    writeInfo(user_poi_dict, file_user_poi_dict)       #训练集用户访问poi
-    writeInfo(time_poi_dict, file_time_poi_dict)       #训练集poi访问时间
-    writeInfo(poi_geo_dict, file_geo_poi_dict)         #训练集poi地理位置信息
+    # writeInfo(user_poi_dict, file_user_poi_dict)       #训练集用户访问poi
+    # writeInfo(time_poi_dict, file_time_poi_dict)       #训练集poi访问时间
+    # writeInfo(poi_geo_dict, file_geo_poi_dict)         #训练集poi地理位置信息
 
-    # poilist = create_key(file_total_geo)
-    # writeMatrix(poilist,file_poilist)
-
-    # 构建共现矩阵、时间矩阵以及地理位置矩阵,并将结果写入txt文件中
     formatdata = format_data(user_poi_dict)
 
-    # 创建3个新线程
-    # thread1 = myThread(1, "Thread_1", "co_visit", poilist, formatdata)
-    # thread2 = myThread(2, "Thread_2", "visit_time", poilist, time_poi_dict)
-    # thread3 = myThread(3, "Thread_3", "poi_geo", poilist, poi_geo_dict)
-
-    # 开启线程
-    # thread1.start()
-    # co_visiting_matrix = create_covisiting_matrix(poilist,formatdata,poi_geo_dict)
-    # writeMatrix(co_visiting_matrix,file_co_visit)
-    # thread2.start()
-    # visited_time_matrix = create_visitedtime_matrix(poilist,time_poi_dict)
-    # writeMatrix(visited_time_matrix,file_visit_time)
-    # thread3.start()
-    # poi_geo_sim_matrix = create_poi_geosim_matrix(poilist,poi_geo_dict)
-    # writeMatrix(poi_geo_sim_matrix,file_poi_geo_sim)
-
     # print("我终于跑完了！累……")
-    # np.savetxt(file_co_visit,co_visiting_matrix)
-    # np.savetxt(file_visit_time,visited_time_matrix)
 
     p1 = Process(target=select_func_run, args=("co_visit", poilist, formatdata, file_co_visit))
     # 进程1：训练集poi共现矩阵构建

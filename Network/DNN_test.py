@@ -111,7 +111,7 @@ def result_for_topk(timelist,time_dict,time_user_dict,user_visit_already,u_dict,
         print("===================Time {0}======================".format(i))
         time_emb = time_dict[i]
         time_userlist = time_user_dict[i]
-        size = 2
+        size = len(time_userlist)
         # 对时间i内每个用户的top k个签到poi进行记录
         topk_user_poi = {}
         topk_pois = []
@@ -148,15 +148,6 @@ def result_for_topk(timelist,time_dict,time_user_dict,user_visit_already,u_dict,
             for index in sorted_scores:
                 topk_pois.append(int(result[index,1]))
             print("Sorting Done……")
-            # for m in range(length-1):
-            #     for n in range(length-1-m):
-            #         if result[n,0] < result[n+1,0]:
-            #             max_score = result[n+1,0]
-            #             max_poi = result[n+1,1]
-            #             result[n+1,0] = result[n,0]
-            #             result[n+1,1] = result[n,1]
-            #             result[n,0] = max_score
-            #             result[n,1] = max_poi
             topk_user_poi[user] = topk_pois
             topk_pois = []
         file_out = open("../data_5months/test/20result_{0}time.txt".format(i),"w",encoding="utf-8")

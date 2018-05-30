@@ -77,13 +77,4 @@ if __name__ == '__main__':
     covisit_loss_list = [loss1,loss2,loss3,loss4,loss5,loss6]
     covisit_numiter_list = [num_iter1,num_iter2,num_iter3,num_iter4,num_iter5,num_iter6]
 
-    file_info_out = open("../bugtest/promise_validation.txt","w",encoding="utf-8")
-    file_info_out.write("===========social===========\n")
-    file_info_out.write(social_loss_list)
-    file_info_out.write(social_numiter_list)
-    file_info_out.write("===========geo===========\n")
-    file_info_out.write(geo_loss_list)
-    file_info_out.write(geo_numiter_list)
-    file_info_out.write("===========covisit===========\n")
-    file_info_out.write(covisit_loss_list)
-    file_info_out.write(covisit_numiter_list)
+
