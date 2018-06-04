@@ -1,6 +1,6 @@
 #将有效的签到记录数据划分为训练集、测试集和参数调优集
 #保证：每个集合中每个用户都是至少有一条签到记录的
-import  random
+import random
 import numpy as np
 
 #file_matrix = "../data/g_time_sim_matirx.txt"

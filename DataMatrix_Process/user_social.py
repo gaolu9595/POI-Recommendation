@@ -72,7 +72,6 @@ def create_user_social_matrix(user_social_dict, valid_userlist,file):
         # 若matrix[row][0]对应的用户有邻居，进行以下操作；否则，该行所有值均为0
         if matrix[row][0] in user_social_dict.keys():
             for col in range(row,len(matrix)):
-                print("social位置[{0},{1}]".format(row, col))
                 if matrix[0][col] in user_social_dict[matrix[row][0]]:
                     matrix[row][col] = 1
                 else:
@@ -81,16 +80,19 @@ def create_user_social_matrix(user_social_dict, valid_userlist,file):
             for col in range(row,len(matrix)):
                matrix[row][col] = 0
             print("第{0}行对角线右侧值全为0".format(row))
-        # 对数据进行行标准化处理
-        total_count = np.sum(matrix[row][1:])
-        if total_count != 0:
-            for col in range(1, len(matrix)):
+    # 对数据进行行标准化处理
+    for row in range(1,len(matrix)):
+        data = matrix[row][1:]
+        total_count = np.sum(data)
+        for col in range(1,len(matrix)):
+            if total_count != 0 :
                 matrix[row][col] = matrix[row][col]/float(total_count)
+            print("social位置[{0},{1}]:{2}".format(row, col, matrix[row][col]))
     # print("====user_social矩阵====")
     # for row in range(len(matrix)):
     #     print(matrix[row][:])
     print("========================WriteFile===========================")
-    np.savetxt(file,matrix,delimiter=",",fmt="%d")
+    np.savetxt(file,matrix,delimiter=",",fmt="%f")
     print("========================Done!===========================")
     return matrix
 

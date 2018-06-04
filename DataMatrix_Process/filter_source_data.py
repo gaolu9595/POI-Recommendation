@@ -1,3 +1,5 @@
+# 失败的尝试
+
 file_source = "../gowalla/Gowalla_totalCheckins.txt"
 file_target = "../gowalla/Gowalla_5months_America.txt"
 file_user_visit = "../data/g_valid_total_user_visit.txt"

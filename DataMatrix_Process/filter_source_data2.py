@@ -1,3 +1,5 @@
+# 筛选出gowalla数据集中美国的所有数据
+
 file_source = "../gowalla/Gowalla_totalCheckins.txt"
 file_target = "../gowalla/Gowalla_America_checkins.txt"
 file_valid_user_visit = "../data/g_valid_total_user_visit.txt"
