@@ -22,8 +22,8 @@ def calcHitNum(file_groundtruth,file_recommendation):
         rec_user_pois[user] = pois[:k]
     for user in userlist:
         count = 0
-        for poi in true_user_pois[user]:
-            if poi in rec_user_pois[user]:
+        for poi in rec_user_pois[user]:
+            if poi in true_user_pois[user]:
                 count += 1
         hit_count[user] = count
     return userlist,hit_count
@@ -49,10 +49,9 @@ def calcRecall(userlist, hit_count, file_user_poinum):
     return float(recall/user_num)
 
 if __name__ == '__main__':
-    # dimlist = [20,40,60,80,100,120]
     timelist = [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23]
     # 测试
-    dimlist = [20]
+    dimlist = [300]
     k = 5
     precision_each_dim = {}
     recall_each_dim = {}
@@ -61,11 +60,23 @@ if __name__ == '__main__':
         recall = {}
         precision_each_dim[dim] = 0
         recall_each_dim[dim] = 0
+        # for time in timelist:
+            # print("============Time {0}=============".format(time))
+            # file_groundtruth = open("../t_data/test/groundtruth/{0}positive.txt".format(time),"r",encoding="utf-8")
+            # file_user_poinum = open("../t_data/test/groundtruth/{0}positive_usernum.txt".format(time),"r",encoding="utf-8")
+            # file_recommendation = open("../t_data/test/recommendation/ver1/{0}result_{1}time.txt".format(dim,time),"r",encoding="utf-8")
+
+        # for time in timelist:
+            # print("============Time {0}=============".format(time))
+            # file_groundtruth = open("../g_data/test/groundtruth/{0}positive.txt".format(time),"r",encoding="utf-8")
+            # file_user_poinum = open("../g_data/test/groundtruth/{0}positive_usernum.txt".format(time),"r",encoding="utf-8")
+            # file_recommendation = open("../g_data/test/recommendation/ver1/{0}result_{1}time.txt".format(dim,time),"r",encoding="utf-8")
+
         for time in timelist:
             print("============Time {0}=============".format(time))
-            file_groundtruth = open("../data_5months/test/groundtruth/{0}positive.txt".format(time),"r",encoding="utf-8")
-            file_user_poinum = open("../data_5months/test/groundtruth/{0}positive_usernum.txt".format(time),"r",encoding="utf-8")
-            file_recommendation = open("../data_5months/test/recommendation/{0}result_{1}time.txt".format(dim,time),"r",encoding="utf-8")
+            file_groundtruth = open("../f_data/test/groundtruth/{0}positive.txt".format(time),"r",encoding="utf-8")
+            file_user_poinum = open("../f_data/test/groundtruth/{0}positive_usernum.txt".format(time),"r",encoding="utf-8")
+            file_recommendation = open("../f_data/test/recommendation/f_threshold_bn_uniform/{0}result_{1}time.txt".format(dim,time),"r",encoding="utf-8")
             # 计算命中数目
             print("Calc Hit Count……")
             userlist, hit_count = calcHitNum(file_groundtruth,file_recommendation)
@@ -83,5 +94,6 @@ if __name__ == '__main__':
         precision_each_dim[dim] /= 24
         recall_each_dim[dim] /= 24
 
-        print(precision_each_dim[dim])
-        print(recall_each_dim[dim])
+        print("precision dim{0}:{1}".format(dim,precision_each_dim[dim]))
+        print("recall dim{0}:{1}".format(dim,recall_each_dim[dim]))
+

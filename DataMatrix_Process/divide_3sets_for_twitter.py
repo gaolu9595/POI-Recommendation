@@ -129,7 +129,7 @@ def divide_train_test_tune(file):
             else:
                 poi_record[poi].append(record)
         print(len(poilist))
-        #确定不同的poi总数，划分数目
+        # 确定不同的poi总数，划分数目
         record_num = len(poilist)
         tune_num = int(record_num*0.1)
         test_num = int(record_num*0.2)
@@ -164,9 +164,9 @@ def divide_train_test_tune(file):
         f4.write("User {0}-------tune set(size:{1},data:{2}\n".format(user,tune_num,poilist3))
 
 if __name__ == '__main__':
-    user_poi_dict, time_poi_dict, poi_geo_dict, valid_userlist, valid_poilist = filter_user_poi(file_source)
-    writeInfo(user_poi_dict, file_valid_user_visit)
-    writeInfo(time_poi_dict, file_valid_visie_time)
-    writeInfo(poi_geo_dict, file_valid_poi_list)
-    write_valid_checkins(file_source, valid_userlist, valid_poilist, file_target)
+    # user_poi_dict, time_poi_dict, poi_geo_dict, valid_userlist, valid_poilist = filter_user_poi(file_source)
+    # writeInfo(user_poi_dict, file_valid_user_visit)
+    # writeInfo(time_poi_dict, file_valid_visie_time)
+    # writeInfo(poi_geo_dict, file_valid_poi_list)
+    # write_valid_checkins(file_source, valid_userlist, valid_poilist, file_target)
     divide_train_test_tune(file_target)

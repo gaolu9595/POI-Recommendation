@@ -17,7 +17,7 @@ file_geo_poi_dict = "../g_data/train/g_train_poi_geo.txt"
 
 file_co_visit = "../g_data/matrix/g_train_co_visit_matrix.txt"
 file_visit_time = "../g_data/matrix/g_train_time_sim_matrix.txt"
-# file_poi_geo_sim = "../g_data/matrix/g_valid_total_poi_sim_matrix_5km.txt"
+file_poi_geo_sim = "../g_data/matrix/g_valid_total_poi_sim_matrix.txt"
 
 def readFile(file): #,poilist
     with open(file,"r",encoding="utf-8") as f:
@@ -27,10 +27,11 @@ def readFile(file): #,poilist
         for line in f.readlines():
             info = line.split("	")
             #id都可以是整型数据，经纬度是浮点数，时间现在先当做是字符串
-            user_id = int(info[0])
-            time = info[4]
-            poi_id = int(info[5])
-            geo = [float(info[2]),float(info[3])]
+            user_id = int(info[0][5:])
+            time = info[3]
+            poi_id = int(info[1][4:])
+            geo_info = info[2].split(",")
+            geo = [float(geo_info[0]),float(geo_info[1])]
             #构建训练集用户访问训练集poi列表的字典
             if user_id in user_poi_dict.keys():
                 if poi_id not in user_poi_dict[user_id]:
@@ -39,7 +40,7 @@ def readFile(file): #,poilist
                 user_poi_dict[user_id] = [poi_id]
                 print("训练集user：",user_id)
             #对时间格式进行预处理,获取签到行为的时间点(24小时制)
-            time = int(time[11:13])
+            time = int(time[0:2])
             #构建训练集poi被访问时间的字典，只选取部分时间内的poi签到记录
             if time in time_poi_dict.keys():
                 #每个时间的poi列表是有重复元素的
@@ -112,7 +113,7 @@ def format_data(user_poi_dict):
     return formatdata
 
 # 为不同的线程选择不同的运行函数
-def select_func_run(func_name, poilist, data, file, dis):
+def select_func_run(func_name, poilist, data, file):
     if func_name == "co_visit":
         co_visiting_matrix = create_covisiting_matrix(poilist, data)
         np.savetxt(file,co_visiting_matrix,delimiter=",",fmt="%d")
@@ -120,7 +121,7 @@ def select_func_run(func_name, poilist, data, file, dis):
         visited_time_matrix = create_visitedtime_matrix(poilist, data)
         np.savetxt(file,visited_time_matrix,delimiter=",",fmt="%d")
     else:
-        poi_geo_sim_matrix = create_poi_geosim_matrix(poilist, data, dis)
+        poi_geo_sim_matrix = create_poi_geosim_matrix(poilist, data)
         np.savetxt(file,poi_geo_sim_matrix,delimiter=",",fmt="%d")
 
 # 构建POI共现矩阵
@@ -208,7 +209,7 @@ def create_visitedtime_matrix(poilist, data):
     return matrix
 
 # 构建poi的地理位置相似矩阵
-def create_poi_geosim_matrix(poilist, data, dis):
+def create_poi_geosim_matrix(poilist, data):
     '''
     :param poilist:
     建立矩阵，矩阵的长宽都是poi集合长度+1
@@ -248,14 +249,14 @@ def create_poi_geosim_matrix(poilist, data, dis):
                 a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
                 c = 2 * asin(sqrt(a))
                 r = 6371
-                distance = c * r
+                distance = (c * r)/100
                 print(distance)
                 if distance < 0:
                     distance = 0 - distance
-                if distance <= dis:
-                    matrix[row][col] = 1
+                if distance != 0:
+                    matrix[row][col] = 1/distance
                 else:
-                    matrix[row][col] = 0
+                    matrix[row][col] = 100
     return matrix
 
 def writeInfo(dict, file):
@@ -268,8 +269,6 @@ def writeInfo(dict, file):
 if __name__ == '__main__':
     # 获取所有合格的poilist（13472）
     poilist, total_poi_geo_dict = create_key(file_total_geo)
-    # 获取不同地理阈值下的结果
-
     # 获取签到记录的基本信息
     # user_poi_dict, time_poi_dict, poi_geo_dict = readFile(file)        #,poilist
 
@@ -285,13 +284,13 @@ if __name__ == '__main__':
     # 进程1：训练集poi共现矩阵构建
     # p2 = Process(target=select_func_run, args=("visit_time", poilist, time_poi_dict,file_visit_time))
     # 进程2：训练集poi访问时间矩阵构建
-    # p3 = Process(target=select_func_run, args=("poi_geo", poilist, total_poi_geo_dict, file_poi_geo_sim, dis))
+    p3 = Process(target=select_func_run, args=("poi_geo", poilist, total_poi_geo_dict, file_poi_geo_sim))
     # 进程3：所有poi地理相似矩阵构建
 
     # p1.start()
     # p2.start()
-    # p3.start()
+    p3.start()
     #
     # p1.join()  # 等待进程停止，进程都停止以后才会执行接下来的语句
     # p2.join()
-    # p3.join()
+    p3.join()

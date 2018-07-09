@@ -1,7 +1,8 @@
-# 为每个poi（总15524）构建其embedding向量
+# 为Twitter Gowalla数据集中的每个poi构建其embedding向量
 # embedding的构建只来自于训练集的数据
 
 import numpy as np
+from sklearn import preprocessing      # standard noramalization
 
 def readPOIS(file_pois):
     poilist = []
@@ -12,6 +13,8 @@ def readPOIS(file_pois):
                 poilist.append(poi_id)
             print("FindNewPOI:{0}".format(poi_id))
         f.close()
+    poilist = np.sort(poilist)
+    print(poilist)
     return poilist
 
 def create_poi_embedding(file_covisit,file_geo,file_time,file_out,poilist):
@@ -25,6 +28,7 @@ def create_poi_embedding(file_covisit,file_geo,file_time,file_out,poilist):
 
     # 特征矩阵的每一列都是一个poi向量的一部分，且三个矩阵的列都是严格对应的
     total_feature_matrix = np.concatenate((covisit_matrix,geo_sim_matrix,time_sim_matrix),axis=0)
+    # total_feature_matrix = preprocessing.scale(total_feature_matrix, axis=1)
     # 在features矩阵上加上一行poi的id表示，方便后续处理
     total_feature_matrix = np.insert(total_feature_matrix, 0, values=poilist, axis=0)
     print(total_feature_matrix)
@@ -34,13 +38,33 @@ def create_poi_embedding(file_covisit,file_geo,file_time,file_out,poilist):
 
 
 if __name__ == '__main__':
-    file_pois = "../data_5months/valid_total/g_valid_total_poi_geo.txt"
+    # file_pois = "../t_data/valid_total/t_valid_total_poi_geo.txt"
+    # poilist = readPOIS(file_pois)
+    # file_poi_visit_time = "../t_data/matrix/t_train_time_sim_matrix.txt"
+    # dimension_list = [300]
+    # for dim in dimension_list:
+        # print("======================Start {0} Features Task============================".format(dim))
+        # file_poi_covisit = "../t_data/nmf_result/covisit/{0}poi_covisit_feature.csv".format(dim)
+        # file_poi_geo = "../t_data/nmf_result/geo/{0}poi_geo_feature.csv".format(dim)
+        # file_out = "../t_data/embeddings/poi/{0}poi_embedding.csv".format(dim)
+        # create_poi_embedding(file_poi_covisit,file_poi_geo,file_poi_visit_time,file_out,poilist)
+    # file_pois = "../g_data/valid_total/g_valid_total_poi_geo.txt"
+    # poilist = readPOIS(file_pois)
+    # file_poi_visit_time = "../g_data/matrix/g_train_time_sim_matrix.txt"
+    # dimension_list = [300]
+    # for dim in dimension_list:
+        # print("======================Start {0} Features Task============================".format(dim))
+        # file_poi_covisit = "../g_data/nmf_result/covisit/{0}poi_covisit_feature.csv".format(dim)
+        # file_poi_geo = "../g_data/nmf_result/geo/{0}poi_geo_feature.csv".format(dim)
+        # file_out = "../g_data/embeddings/poi/{0}poi_embedding.csv".format(dim)
+        # create_poi_embedding(file_poi_covisit,file_poi_geo,file_poi_visit_time,file_out,poilist)
+    file_pois = "../f_data/valid_total/f_valid_total_poi_geo.txt"
     poilist = readPOIS(file_pois)
-    file_poi_visit_time = "../data_5months/train/g_train_time_sim_matrix.txt"
-    dimension_list = [20,40,60,80,100,120]
+    file_poi_visit_time = "../f_data/matrix/f_train_time_sim_matrix.txt"
+    dimension_list = [100,200,300]
     for dim in dimension_list:
         print("======================Start {0} Features Task============================".format(dim))
-        file_poi_covisit = "../data_5months/train_feature_matrixs/covisit/{0}poi_covisit_feature.csv".format(dim)
-        file_poi_geo = "../data_5months/valid_total_feature_matrixs/geo/{0}poi_geo_feature.csv".format(dim)
-        file_out = "../data_5months/embeddings/poi/{0}poi_embedding.csv".format(dim)
+        file_poi_covisit = "../f_data/nmf_result/covisit/{0}poi_covisit_feature_l2penalty.csv".format(dim)
+        file_poi_geo = "../f_data/nmf_result/geo/threshold/{0}poi_geo_feature_l2penalty.csv".format(dim)
+        file_out = "../f_data/embeddings/poi/threshold/{0}poi_embedding.csv".format(dim)
         create_poi_embedding(file_poi_covisit,file_poi_geo,file_poi_visit_time,file_out,poilist)

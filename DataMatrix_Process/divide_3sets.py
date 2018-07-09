@@ -1,10 +1,10 @@
 #将有效的签到记录数据划分为训练集、测试集和参数调优集
 #保证：每个集合中每个用户都是至少有一条签到记录的
-import random
+import  random
 import numpy as np
 
 #file_matrix = "../data/g_time_sim_matirx.txt"
-file_valid_total = "../gowalla/Gowalla_Valid_Data.txt"
+file_valid_total = "../data/Gowalla_Valid_Data.txt"
 
 #从总签到数据中筛选出每个用户的70%作为训练集，20%作为测试集，10%作为参数调优集
 def divide_train_test_tune(file):

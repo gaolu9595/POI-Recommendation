@@ -17,7 +17,7 @@ file_geo_poi_dict = "../t_data/train/t_train_poi_geo.txt"
 
 file_co_visit = "../t_data/matrix/t_train_co_visit_matrix.txt"
 file_visit_time = "../t_data/matrix/t_train_time_sim_matrix.txt"
-# file_poi_geo_sim = "../t_data/matrix/t_valid_total_poi_sim_matrix_4km.txt"
+file_poi_geo_sim = "../t_data/matrix/t_valid_total_poi_sim_matrix.txt"
 
 def readFile(file): #,poilist
     with open(file,"r",encoding="utf-8") as f:
@@ -112,7 +112,7 @@ def format_data(user_poi_dict):
     return formatdata
 
 # 为不同的线程选择不同的运行函数
-def select_func_run(func_name, poilist, data, file, dis):
+def select_func_run(func_name, poilist, data, file):
     if func_name == "co_visit":
         co_visiting_matrix = create_covisiting_matrix(poilist, data)
         np.savetxt(file,co_visiting_matrix,delimiter=",",fmt="%d")
@@ -120,7 +120,7 @@ def select_func_run(func_name, poilist, data, file, dis):
         visited_time_matrix = create_visitedtime_matrix(poilist, data)
         np.savetxt(file,visited_time_matrix,delimiter=",",fmt="%d")
     else:
-        poi_geo_sim_matrix = create_poi_geosim_matrix(poilist, data, dis)
+        poi_geo_sim_matrix = create_poi_geosim_matrix(poilist, data)
         np.savetxt(file,poi_geo_sim_matrix,delimiter=",",fmt="%d")
 
 # 构建POI共现矩阵
@@ -208,7 +208,7 @@ def create_visitedtime_matrix(poilist, data):
     return matrix
 
 # 构建poi的地理位置相似矩阵
-def create_poi_geosim_matrix(poilist, data, dis):
+def create_poi_geosim_matrix(poilist, data):
     '''
     :param poilist:
     建立矩阵，矩阵的长宽都是poi集合长度+1
@@ -248,14 +248,18 @@ def create_poi_geosim_matrix(poilist, data, dis):
                 a = sin(dlat / 2) ** 2 + cos(lat1) * cos(lat2) * sin(dlon / 2) ** 2
                 c = 2 * asin(sqrt(a))
                 r = 6371
-                distance = c * r
+                distance = (c * r)/100
                 print(distance)
                 if distance < 0:
                     distance = 0 - distance
-                if distance <= dis:
-                    matrix[row][col] = 1
+                if distance != 0:
+                    matrix[row][col] = 1/distance
                 else:
-                    matrix[row][col] = 0
+                    matrix[row][col] = 100
+                # if distance <= 5:
+                #     matrix[row][col] = 1
+                # else:
+                #     matrix[row][col] = 0
     return matrix
 
 def writeInfo(dict, file):
@@ -270,22 +274,20 @@ if __name__ == '__main__':
     poilist, total_poi_geo_dict = create_key(file_total_geo)
     # 获取签到记录的基本信息
     # user_poi_dict, time_poi_dict, poi_geo_dict = readFile(file)        #,poilist
-    #
+
     # writeInfo(user_poi_dict, file_user_poi_dict)       #训练集用户访问poi
     # writeInfo(time_poi_dict, file_time_poi_dict)       #训练集poi访问时间
     # writeInfo(poi_geo_dict, file_geo_poi_dict)         #训练集poi地理位置信息
-    #
+
     # formatdata = format_data(user_poi_dict)
-    #
-    # # print("我终于跑完了！累……")
-    #
+
+    # print("我终于跑完了！累……")
+
     # p1 = Process(target=select_func_run, args=("co_visit", poilist, formatdata, file_co_visit))
-    # # 进程1：训练集poi共现矩阵构建
+    # 进程1：训练集poi共现矩阵构建
     # p2 = Process(target=select_func_run, args=("visit_time", poilist, time_poi_dict,file_visit_time))
     # 进程2：训练集poi访问时间矩阵构建
-    for dis in range(1,10):
-        file_poi_geo_sim = "../t_data/matrix/t_valid_total_poi_sim_matrix_{0}km.txt".format(dis)
-        p3 = Process(target=select_func_run, args=("poi_geo", poilist, total_poi_geo_dict, file_poi_geo_sim, dis))
+    p3 = Process(target=select_func_run, args=("poi_geo", poilist, total_poi_geo_dict, file_poi_geo_sim))
     # 进程3：所有poi地理相似矩阵构建
 
     # p1.start()
@@ -295,3 +297,4 @@ if __name__ == '__main__':
     # p1.join()  # 等待进程停止，进程都停止以后才会执行接下来的语句
     # p2.join()
     p3.join()
+
